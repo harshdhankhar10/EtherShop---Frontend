@@ -171,12 +171,11 @@ const Sidebar = () => {
                 />
                 <MenuItem 
                   icon={<FiLifeBuoy />} 
-                  title="Support" 
-                  link="/support" 
+                  title="User Management" 
+                  link="/users/all" 
                   submenu={{ 
-                    "Help Center": "/support/help", 
-                    "Contact Support": { "Live Chat": "/support/chat", "Email Support": "/support/email", "Call Support": "/support/call" }, 
-                    FAQ: "/support/faq" 
+                    "All Users": "/dashboard/admin/users/all",
+                    "Create New User": "/dashboard/admin/users/create"
                   }} 
                   darkMode={darkMode} 
                 />

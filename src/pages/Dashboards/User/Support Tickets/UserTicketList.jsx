@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { FiEye, FiAlertCircle, FiClock } from 'react-icons/fi';
+import { FiEye, FiAlertCircle, FiClock, FiSearch, FiFilter, FiChevronDown } from 'react-icons/fi';
 
 const UserTicketList = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterPriority, setFilterPriority] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/support-tickets/get-tickets`,{
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/support-tickets/get-tickets`, {
           headers: {
             Authorization: JSON.parse(localStorage.getItem('auth')).token
           }
@@ -46,58 +49,103 @@ const UserTicketList = () => {
     }
   };
 
+  const filteredTickets = tickets.filter(ticket => 
+    ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    (filterPriority ? ticket.priority.toLowerCase() === filterPriority.toLowerCase() : true) &&
+    (filterStatus ? ticket.status.toLowerCase() === filterStatus.toLowerCase() : true)
+  );
+
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">
-      <FiClock className="animate-spin text-4xl text-blue-500" />
-    </div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <FiClock className="animate-spin text-6xl text-blue-500" />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center text-red-500 mt-10">
-      <FiAlertCircle className="inline-block mr-2" />
-      {error}
-    </div>;
+    return (
+      <div className="text-center text-red-500 mt-10 p-6 bg-red-50 rounded-lg shadow-lg">
+        <FiAlertCircle className="inline-block mr-2 text-4xl" />
+        <p className="text-xl font-semibold">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-6xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
-      <h2 className="text-3xl font-bold text-gray-900 mb-6">My Support Tickets</h2>
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {tickets.map((ticket) => (
-              <tr key={ticket._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{ticket.ticketID}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ticket.subject}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(ticket.status)}`}>
-                    {ticket.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPriorityColor(ticket.priority)}`}>
-                    {ticket.priority}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <Link to={`/dashboard/user/home/customer-support/ticket/${ticket._id}`} className="text-indigo-600 hover:text-indigo-900">
-                    <FiEye className="inline-block mr-1" /> View
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+      <h2 className="text-4xl font-extrabold text-gray-900 mb-8">My Support Tickets</h2>
+      
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+        <div className="relative w-full sm:w-64">
+          <input
+            type="text"
+            placeholder="Search tickets..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        </div>
+        
+        <div className="flex space-x-4">
+          <select
+            value={filterPriority}
+            onChange={(e) => setFilterPriority(e.target.value)}
+            className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Priorities</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Statuses</option>
+            <option value="open">Open</option>
+            <option value="in progress">In Progress</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
       </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredTickets.map((ticket) => (
+          <div key={ticket._id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-sm font-medium text-gray-500">#{ticket.ticketID}</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(ticket.status)}`}>
+                  {ticket.status}
+                </span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{ticket.subject}</h3>
+              <p className="text-gray-600 mb-4 truncate">{ticket.description}</p>
+              <div className="flex justify-between items-center">
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPriorityColor(ticket.priority)}`}>
+                  {ticket.priority}
+                </span>
+                <Link 
+                  to={`/dashboard/user/home/customer-support/ticket/${ticket._id}`} 
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <FiEye className="mr-2" /> View Details
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filteredTickets.length === 0 && (
+        <div className="text-center py-10">
+          <p className="text-gray-500 text-xl">No tickets found matching your criteria.</p>
+        </div>
+      )}
     </div>
   );
 };

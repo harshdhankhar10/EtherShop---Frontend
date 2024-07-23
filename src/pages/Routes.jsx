@@ -27,7 +27,7 @@ import ContactSupport from './Dashboards/User/CustomerSupport/ContactForm'
 import CreateTicket from './Dashboards/User/Support Tickets/CreateTicket'
 import UserTicketList from './Dashboards/User/Support Tickets/UserTicketList'
 import UserTicketDetail from './Dashboards/User/Support Tickets/UserTicketDetail'
-
+import MyProfile from './Dashboards/User/My Account/MyProfile'
 
 
 
@@ -38,8 +38,11 @@ import CreateAdminCategory from "./Dashboards/Admin/Categories/CreateAdminCatego
 import AdminPrivateRoute from "./AdminPrivateRoute"
 import AdminSidebar from "./Dashboards/Admin/AdminSidebar"
 import UsersContactUsDetails from './Dashboards/Admin/ContactForms/UsersContactUsDetails'
-
-
+import AdminTicketDetail from './Dashboards/Admin/Support Ticket/AdminTicketDetail'
+import AdminTicketList from './Dashboards/Admin/Support Ticket/AdminTicketList'
+import TicketStatistics from './Dashboards/Admin/Support Ticket/TicketStatistics'
+import AllUsers from './Dashboards/Admin/Users/AllUsers'
+import CreateNewUser from './Dashboards/Admin/Users/CreateNewUser'
 
 
 // import AdminPrivateRoutes from './AdminPrivateRoute'
@@ -79,6 +82,7 @@ const RoutePath = () => {
                   <Route path="customer-support/create-ticket" element={<CreateTicket/>}/>
                   <Route path="customer-support/my-tickets" element={<UserTicketList/>}/>
                   <Route path="customer-support/ticket/:id" element={<UserTicketDetail/>}/>
+                  <Route path="my-account/my-profile" element={<MyProfile/>}/>
 
 
 
@@ -109,6 +113,11 @@ const RoutePath = () => {
                   <Route path='product/manage' element={<ManageProduct/>}/> 
 
                   <Route path='contact-us-data' element={<UsersContactUsDetails/>}/>
+                  <Route path='support-tickets/tickets' element={<AdminTicketList/>}/>
+                  <Route path='support-tickets/stats' element={<TicketStatistics/>}/>
+                  <Route path='support-tickets/:id' element={<AdminTicketDetail/>}/>
+                  <Route path='users/all' element={<AllUsers/>}/>
+                  <Route path='users/create' element={<CreateNewUser/>}/>
 
 
 

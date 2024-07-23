@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { FiAlertCircle, FiClock, FiMessageCircle } from 'react-icons/fi';
+import { FiAlertCircle, FiClock, FiMessageCircle, FiUser, FiTag, FiFlag, FiFolder, FiCalendar } from 'react-icons/fi';
 
 const UserTicketDetail = () => {
   const [ticket, setTicket] = useState(null);
@@ -12,7 +12,7 @@ const UserTicketDetail = () => {
   useEffect(() => {
     const fetchTicket = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/support-tickets/get-ticket/${id}`,{
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/support-tickets/get-ticket/${id}`, {
           headers: {
             Authorization: JSON.parse(localStorage.getItem('auth')).token
           }
@@ -31,109 +31,121 @@ const UserTicketDetail = () => {
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
-      case 'open': return 'text-blue-600 bg-blue-100';
-      case 'in progress': return 'text-yellow-600 bg-yellow-100';
-      case 'closed': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'open': return 'bg-blue-500 text-white';
+      case 'in progress': return 'bg-yellow-500 text-white';
+      case 'closed': return 'bg-green-500 text-white';
+      default: return 'bg-gray-500 text-white';
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority.toLowerCase()) {
-      case 'high': return 'text-red-600 bg-red-100';
-      case 'medium': return 'text-yellow-600 bg-yellow-100';
-      case 'low': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'high': return 'bg-red-500 text-white';
+      case 'medium': return 'bg-orange-500 text-white';
+      case 'low': return 'bg-green-500 text-white';
+      default: return 'bg-gray-500 text-white';
     }
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <FiClock className="animate-spin text-4xl text-blue-500" />
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <FiClock className="animate-spin text-6xl text-blue-500" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-500 mt-10">
-        <FiAlertCircle className="inline-block mr-2" />
-        {error}
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="text-center bg-white p-8 rounded-lg shadow-lg">
+          <FiAlertCircle className="text-5xl text-red-500 mb-4 mx-auto" />
+          <p className="text-xl font-semibold text-gray-800">{error}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
-      <h2 className="text-3xl font-bold text-gray-900 mb-6">Ticket Details</h2>
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Ticket ID: {ticket.ticketID}
-          </h3>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            Created on: {new Date(ticket.createdAt).toLocaleString()}
-          </p>
-        </div>
-        <div className="border-t border-gray-200">
-          <dl>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Subject</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{ticket.subject}</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Description</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{ticket.description}</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Status</dt>
-              <dd className="mt-1 text-sm sm:mt-0 sm:col-span-2">
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(ticket.status)}`}>
+    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="bg-white shadow-xl rounded-lg overflow-hidden">
+          <div className="px-6 py-8 border-b border-gray-200">
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">{ticket.subject}</h2>
+                <p className="mt-2 text-sm text-gray-500 flex items-center">
+                  <FiTag className="mr-2" /> Ticket ID: {ticket.ticketID}
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(ticket.status)}`}>
                   {ticket.status}
                 </span>
-              </dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Priority</dt>
-              <dd className="mt-1 text-sm sm:mt-0 sm:col-span-2">
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPriorityColor(ticket.priority)}`}>
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getPriorityColor(ticket.priority)}`}>
                   {ticket.priority}
                 </span>
-              </dd>
+              </div>
             </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Category</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{ticket.category}</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-
-      <h3 className="text-2xl font-bold text-gray-900 mt-10 mb-4">Responses</h3>
-      {ticket.responses.length > 0 ? (
-        <div className="space-y-6">
-          {ticket.responses.map((response, index) => (
-            <div key={index} className="bg-white shadow overflow-hidden sm:rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <FiMessageCircle className="h-6 w-6 text-gray-400" aria-hidden="true" />
+          </div>
+          
+          <div className="px-6 py-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Ticket Details</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <FiUser className="text-gray-400 mr-2" />
+                    <span className="text-sm text-gray-600">{ticket.userName}</span>
                   </div>
-                  <div className="ml-3 w-full">
-                    <p className="text-sm text-gray-900">{response.response}</p>
-                    <p className="mt-2 text-sm text-gray-500">
-                      Responded at: {new Date(response.respondedAt).toLocaleString()}
-                    </p>
+                  <div className="flex items-center">
+                    <FiCalendar className="text-gray-400 mr-2" />
+                    <span className="text-sm text-gray-600">Created on: {new Date(ticket.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <FiFolder className="text-gray-400 mr-2" />
+                    <span className="text-sm text-gray-600">Category: {ticket.category}</span>
                   </div>
                 </div>
               </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Description</h3>
+                <p className="text-sm text-gray-600">{ticket.description}</p>
+              </div>
             </div>
-          ))}
+          </div>
+          
+          <div className="px-6 py-8 bg-gray-50">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">Responses</h3>
+            {ticket.responses.length > 0 ? (
+              <div className="space-y-6">
+                {ticket.responses.map((response, index) => (
+                  <div key={index} className="bg-white p-6 rounded-lg shadow">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                          <FiMessageCircle className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-1">
+                        <p className="text-sm text-gray-800">{response.response}</p>
+                        <p className="mt-2 text-xs text-gray-500">
+                          Responded at: {new Date(response.respondedAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white p-6 rounded-lg shadow text-center">
+                <FiMessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 italic">No responses yet.</p>
+              </div>
+            )}
+          </div>
         </div>
-      ) : (
-        <p className="text-gray-500 italic">No responses yet.</p>
-      )}
+      </div>
     </div>
   );
 };

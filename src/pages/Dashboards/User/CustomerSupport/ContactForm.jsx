@@ -21,7 +21,11 @@ const ContactSupport = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const {userId, name, email, orderNumber, subject, message} = formData
-    const res = await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/contactForm/create`, {userId, name, email, orderNumber, subject, message})
+    const res = await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/contactForm/create`, {userId, name, email, orderNumber, subject, message},{
+      headers: {
+        Authorization: JSON.parse(localStorage.getItem('auth')).token
+      }
+    })
     if(res.data.success) {
         toast.success(res.data.message)
     }

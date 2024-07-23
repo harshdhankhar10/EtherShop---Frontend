@@ -208,7 +208,7 @@ const Sidebar = () => {
       title: 'My Account',
       link: '/account',
       submenus: [
-        { title: 'Profile', link: '/account/profile' },
+        { title: 'Profile', link: '/dashboard/user/home/my-account/my-profile' },
         { title: 'Addresses', link: '/account/addresses' },
         { title: 'Payment Methods', link: '/account/payment-methods' },
         { title: 'Change Password', link: '/account/change-password' }
