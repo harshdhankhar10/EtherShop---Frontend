@@ -5,6 +5,8 @@ import { GoStarFill as SolidStarIcon } from "react-icons/go";
 import { Helmet } from 'react-helmet';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { FacebookShare, LinkedinShare, WhatsappShare, TelegramShare, PinterestShare } from 'react-share-kit';
+
 const ViewProduct = ({}) => {
   const [activeTab, setActiveTab] = useState('description');
   const [rating, setRating] = useState(0);
@@ -20,6 +22,7 @@ const ViewProduct = ({}) => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
+  
 
   const handleRatingClick = (value) => {
     setRating(value);
@@ -106,9 +109,16 @@ const ViewProduct = ({}) => {
               Add to Cart
             </button>
           </div>
+          <div className="flex gap-4 mt-4 ">
+          <FacebookShare  url={product.slug} />
+          <LinkedinShare  url={product.slug} />
+          <WhatsappShare  url={product.slug} />
+          <TelegramShare  url={product.slug} />
+          <PinterestShare  url={product.slug} />
+      </div>
         </section>
       </div>
-
+     
       <div className="flex justify-center mb-8">
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">

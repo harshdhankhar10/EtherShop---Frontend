@@ -9,6 +9,9 @@ import { Helmet } from 'react-helmet'
 import FeaturedProduct from '../components/Products/FeaturedProduct'
 import CategorySection from '../components/Products/CategorySection'
 import HomeAllProducts from '../components/Products/HomeAllProducts'
+import HomePromotion from '../components/HomePromotion'
+import TestimonialSection from '../components/TestimonialSection'
+import FlashSaleCountdown from '../components/SalesCountdown'
 import Footer from '../components/Footer'
 
 
@@ -26,6 +29,9 @@ const Homepage = () => {
         <FeaturedProduct/>
         <CategorySection/>
         <HomeAllProducts/>
+        <FlashSaleCountdown/>
+        <TestimonialSection/>
+        <HomePromotion/>
         <Footer/>
       
        

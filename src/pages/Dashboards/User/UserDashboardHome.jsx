@@ -7,6 +7,8 @@ import {
   FiChevronDown, FiChevronRight, FiMenu
 } from 'react-icons/fi';
 import { HiOutlineTicket } from "react-icons/hi2";
+import { GrBlog } from "react-icons/gr";
+
 
 import { FaRupeeSign } from "react-icons/fa";
 import {Helmet} from 'react-helmet';
@@ -180,7 +182,7 @@ const Sidebar = () => {
       title: 'Cart',
       link: '/cart',
       submenus: [
-        { title: 'View Cart', link: '/cart/view' },
+        { title: 'View Cart', link: '/dashboard/user/home/cart' },
         { title: 'Checkout', link: '/cart/checkout' }
       ]
     },
@@ -197,8 +199,8 @@ const Sidebar = () => {
       title: 'Products',
       link: '/products',
       submenus: [
-        { title: 'Browse Products', link: '/products/browse' },
-        { title: 'Categories', link: '/products/categories' },
+        { title: 'Browse Products', link: '/dashboard/user/home/products/all' },
+        { title: 'Categories', link: '/dashboard/user/home/products/categories' },
         { title: 'New Arrivals', link: '/products/new-arrivals' },
         { title: 'Best Sellers', link: '/products/best-sellers' }
       ]
@@ -246,12 +248,14 @@ const Sidebar = () => {
     },
    
     {
-      icon: FiBell,
-      title: 'Notifications',
-      link: '/notifications',
+      icon: GrBlog,
+      title: 'Blog Management',
+      link: '/blog',
       submenus: [
-        { title: 'All Notifications', link: '/notifications/all' },
-        { title: 'Unread Notifications', link: '/notifications/unread' }
+        { title: 'Create ', link: '/dashboard/user/home/blog-management/create-blog' },
+        { title: 'Manage ', link: '/dashboard/user/home/blog-management/manage-posts' },
+        { title: 'Blog Categories', link: '/dashboard/user/home/blog-management/categories' },
+        { title: 'Blog Tags', link: '/dashboard/user/home/blog-management/tags' }
       ]
     },
     {

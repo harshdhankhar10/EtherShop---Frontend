@@ -5,6 +5,8 @@ import {
   FiSettings, FiFile, FiGift, FiMessageCircle, FiLogOut, FiSun, 
   FiMoon, FiBell 
 } from 'react-icons/fi';
+import { RiCoupon2Line } from "react-icons/ri";
+
 import { SiChatbot } from 'react-icons/si';
 import { TbCategoryPlus } from 'react-icons/tb';
 import { Helmet } from 'react-helmet';
@@ -180,10 +182,10 @@ const Sidebar = () => {
                   darkMode={darkMode} 
                 />
                 <MenuItem 
-                  icon={<FiSettings />} 
-                  title="Settings" 
-                  link="/settings" 
-                  submenu={{ "Notification Settings": "/settings/notifications", "Privacy Settings": "/settings/privacy", "Language & Region": "/settings/language" }} 
+                  icon={<RiCoupon2Line />} 
+                  title="Coupons" 
+                  link="/coupons" 
+                  submenu={{ "Create Coupons": "/dashboard/admin/coupons/create", "All Coupons": "/dashboard/admin/coupons/all" }} 
                   darkMode={darkMode} 
                 />
                 <MenuItem 

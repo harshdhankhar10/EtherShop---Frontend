@@ -6,7 +6,7 @@ import PageNotFound from './PageNotFound'
 import RegsiterPage from './Auth/RegsiterPage'
 import LoginPage from './Auth/LoginPage'
 import ForgotPassword from './Auth/ForgotPassword'
-
+import OrderTracking from './OrderTracking'
 
 // Products Releated Routes
 import ProductsHome from '../components/Products/ProductsHome'
@@ -28,6 +28,10 @@ import CreateTicket from './Dashboards/User/Support Tickets/CreateTicket'
 import UserTicketList from './Dashboards/User/Support Tickets/UserTicketList'
 import UserTicketDetail from './Dashboards/User/Support Tickets/UserTicketDetail'
 import MyProfile from './Dashboards/User/My Account/MyProfile'
+import CreateBlog from './Dashboards/User/BlogManagement/CreateBlog'
+import UserDashCart from './Dashboards/User/Cart/UserDashCart'
+import AllProducts from './Dashboards/User/Products/AllProducts'
+import BrowseCategories from './Dashboards/User/Products/BrowseCategories'
 
 
 
@@ -43,7 +47,8 @@ import AdminTicketList from './Dashboards/Admin/Support Ticket/AdminTicketList'
 import TicketStatistics from './Dashboards/Admin/Support Ticket/TicketStatistics'
 import AllUsers from './Dashboards/Admin/Users/AllUsers'
 import CreateNewUser from './Dashboards/Admin/Users/CreateNewUser'
-
+import CreateCoupons from './Dashboards/Admin/Coupons/CreateCoupons'
+import AllCoupons from './Dashboards/Admin/Coupons/AllCoupons'
 
 // import AdminPrivateRoutes from './AdminPrivateRoute'
 import HomeDashboard from './Dashboards/Admin/HomeDashboard'
@@ -65,6 +70,7 @@ const RoutePath = () => {
             <Route path='/forgot-password' element={<ForgotPassword/>}/>
             <Route path='/categories/:slug' element={<CategoryBasedProducts/>}/>
             <Route path='/product/:slug' element={<ProductDetails/>}/>
+            <Route path='/order-tracking' element={<OrderTracking/>}/>
 
             <Route path="*" element={<PageNotFound/>}/>
 
@@ -83,6 +89,10 @@ const RoutePath = () => {
                   <Route path="customer-support/my-tickets" element={<UserTicketList/>}/>
                   <Route path="customer-support/ticket/:id" element={<UserTicketDetail/>}/>
                   <Route path="my-account/my-profile" element={<MyProfile/>}/>
+                  <Route path="blog-management/create-blog" element={<CreateBlog/>}/>
+                  <Route path="cart" element={<UserDashCart/>}/>
+                  <Route path="products/all" element={<AllProducts/>}/>
+                  <Route path="products/categories" element={<BrowseCategories/>}/>
 
 
 
@@ -118,6 +128,9 @@ const RoutePath = () => {
                   <Route path='support-tickets/:id' element={<AdminTicketDetail/>}/>
                   <Route path='users/all' element={<AllUsers/>}/>
                   <Route path='users/create' element={<CreateNewUser/>}/>
+
+                  <Route path='coupons/create' element={<CreateCoupons/>}/>
+                  <Route path='coupons/all' element={<AllCoupons/>}/>
 
 
 

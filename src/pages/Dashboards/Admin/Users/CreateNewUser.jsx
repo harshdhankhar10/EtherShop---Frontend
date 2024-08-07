@@ -11,3 +11,4 @@ const CreateNewUser = () => {
 }
 
 export default CreateNewUser
+

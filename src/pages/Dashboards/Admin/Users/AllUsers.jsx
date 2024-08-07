@@ -20,7 +20,6 @@ const AllUsers = () => {
     const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/users/all-users`)
     setUsers(response.data.data)
     setFilteredUsers(response.data.data)
-    console.log(response.data)
   };
 
   const handleSearch = (e) => {

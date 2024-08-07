@@ -19,7 +19,7 @@ const LoginPage = () => {
       const res = await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/auth/login`, {
         email,
         password,
-      });
+          });
       if (res && res.data.success) {
         toast.success('Logged in successfully');
         const userRole = res.data.user.role;
