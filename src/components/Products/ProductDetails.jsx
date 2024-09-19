@@ -6,26 +6,47 @@ import { Helmet } from 'react-helmet';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FacebookShare, LinkedinShare, WhatsappShare, TelegramShare, PinterestShare } from 'react-share-kit';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, removeFromCart } from '../../redux/slices/cartSlice';
+import { toast } from 'react-toastify';
 
-const ViewProduct = ({}) => {
+const ViewProduct = () => {
   const [activeTab, setActiveTab] = useState('description');
   const [rating, setRating] = useState(0);
-  const [product, setProduct] = useState([]);
+  const [product, setProduct] = useState({});
   const params = useParams();
-  useEffect(()=>{
-    const fetchProduct = async()=>{
-      const res = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/product/product/${params.slug}`);
-      setProduct(res.data.product);
-    }
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/product/product/${params.slug}`);
+        setProduct(res.data.product);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      }
+    };
     fetchProduct();
-  },[]);
+  }, [params.slug]);
+
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
-  
 
   const handleRatingClick = (value) => {
     setRating(value);
+  };
+
+  const handleToggleCart = () => {
+    const isInCart = cartItems.some(item => item._id === product._id);
+    if (isInCart) {
+      dispatch(removeFromCart(product._id));
+      toast.error('Item removed from cart');
+    } else {
+      dispatch(addToCart(product));
+      toast.success('Item added to cart');
+    }
   };
 
   return (
@@ -105,17 +126,17 @@ const ViewProduct = ({}) => {
             <button className="px-12 py-3 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors">
               Buy it now
             </button>
-            <button className="px-12 py-3 bg-blue-100 text-blue-600 font-bold rounded-md hover:bg-blue-200 transition-colors">
+            <button onClick={handleToggleCart} className="px-12 py-3 bg-blue-100 text-blue-600 font-bold rounded-md hover:bg-blue-200 transition-colors">
               Add to Cart
             </button>
           </div>
-          <div className="flex gap-4 mt-4 ">
-          <FacebookShare  url={product.slug} />
-          <LinkedinShare  url={product.slug} />
-          <WhatsappShare  url={product.slug} />
-          <TelegramShare  url={product.slug} />
-          <PinterestShare  url={product.slug} />
-      </div>
+          <div className="flex gap-4 mt-4">
+            <FacebookShare url={product.slug} />
+            <LinkedinShare url={product.slug} />
+            <WhatsappShare url={product.slug} />
+            <TelegramShare url={product.slug} />
+            <PinterestShare url={product.slug} />
+          </div>
         </section>
       </div>
      
@@ -188,10 +209,10 @@ const ViewProduct = ({}) => {
                   <span className="text-sm font-bold">John Doe</span>
                 </div>
                 <p className="text-gray-700 leading-relaxed">
-                  "Great product! The audio quality is amazing, and the comfort is top-notch. Highly recommended!"
+                  This is a great product! I've been using it for a few weeks now and it has exceeded my expectations.
                 </p>
               </div>
-              <div className="bg-gray-100 p-6 rounded-md shadow-md">
+              <div className="bg-gray-100 p-6 rounded-md mb-6 shadow-md">
                 <div className="flex items-center mb-2">
                   <img
                     src="https://via.placeholder.com/50x50"
@@ -201,7 +222,7 @@ const ViewProduct = ({}) => {
                   <span className="text-sm font-bold">Jane Smith</span>
                 </div>
                 <p className="text-gray-700 leading-relaxed">
-                  "I've been using the boAt Rockerz 450 for a few months now, and I'm thoroughly impressed with its battery life and sound performance."
+                  Amazing quality and fast shipping. I would definitely buy again!
                 </p>
               </div>
             </div>
@@ -209,16 +230,20 @@ const ViewProduct = ({}) => {
           {activeTab === 'policies' && (
             <div>
               <h3 className="text-2xl font-bold mb-4 text-gray-800">Policies</h3>
-              <ul className="list-disc list-inside text-gray-700 leading-relaxed">
-                <li>14-day return policy for unused and unopened products.</li>
-                <li>1-year warranty from the date of purchase.</li>
-                <li>Free shipping on orders over $50.</li>
-              </ul>
+              <div>
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Shipping Policy:</h4>
+                <p>
+                  We offer free standard shipping on all orders. Expedited shipping options are available for an additional fee.
+                </p>
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Return Policy:</h4>
+                <p>
+                  You can return any item within 30 days of purchase for a full refund. The item must be in its original condition.
+                </p>
+              </div>
             </div>
           )}
         </div>
-      </div><br /><br /><br />
-      <br />
+      </div>
     </>
   );
 };

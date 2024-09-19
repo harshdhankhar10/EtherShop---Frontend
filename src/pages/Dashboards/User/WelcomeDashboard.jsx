@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiUser, FiMail, FiSettings, FiDownload, FiHeart, FiLogOut, FiHelpCircle, 
@@ -7,13 +7,18 @@ import {
   FiDollarSign, FiCheckCircle, FiAlertCircle, FiLock
 } from 'react-icons/fi';
 import Navbar from '../../../components/Navbar';
+import QRCode from 'qrcode.react';
+
 import { Helmet } from 'react-helmet';
-import {useNavigate} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const WelcomeAfterLoginPage = () => {
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
-  const [userDetails, setUserDetails] = useState(JSON.parse(localStorage.getItem('auth')));
+  const [userDetails, setUserDetails] = useState(JSON.parse(localStorage.getItem('auth'))?.user);
+  const [featuredCategories, setFeaturedCategories] = useState([]);
   const navigate = useNavigate();
   const user = {
     name: 'John Doe',
@@ -41,17 +46,31 @@ const WelcomeAfterLoginPage = () => {
     { id: 4, name: 'Mobile App Development Kit', price: 59.99, discount: 10 },
   ];
 
-  const featuredCategories = [
-    { id: 1, name: 'eBooks', icon: FiBookOpen },
-    { id: 2, name: 'Courses', icon: FiBookOpen },
-    { id: 3, name: 'Templates', icon: FiPackage },
-    { id: 4, name: 'Software', icon: FiDownload },
-  ];
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/category/all`);
+      if (response.data.success) {
+        setFeaturedCategories(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      
+    }
+  };
+
 
   const buttonVariants = {
     hover: { scale: 1.05, transition: { duration: 0.2 } },
     tap: { scale: 0.95 },
   };
+  function handleLogout(){
+    localStorage.removeItem('auth');
+    toast.success('Logged Out Successfully');
+    navigate('/');
+  }
 
   return (
     <>
@@ -70,10 +89,19 @@ const WelcomeAfterLoginPage = () => {
           {/* Header */}
           <div className="bg-indigo-600 px-6 py-4 flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-white">Welcome back, {user.name}!</h1>
-              <p className="text-indigo-200">Your gateway to premium digital content</p>
+              <h1 className="text-2xl font-bold text-white">Welcome back, {userDetails.fullName}!</h1>
+              <p className="text-indigo-200">Your gateway to premium content</p>
             </div>
             <div className="flex items-center space-x-4">
+            <motion.button
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+                className="bg-white text-indigo-600 px-4 py-2 rounded-md font-semibold"
+                onClick={() => {navigate('/')}}
+              >
+                Go to Homepage
+              </motion.button>
               <motion.button
                 variants={buttonVariants}
                 whileHover="hover"
@@ -86,7 +114,8 @@ const WelcomeAfterLoginPage = () => {
               <motion.img
                 src={user.profileImage}
                 alt={user.name}
-                className="h-12 w-12 rounded-full border-2 border-white"
+                onClick={() => {navigate('/dashboard/user/home')}}
+                className="h-12 w-12 rounded-full border-2 border-white cursor-pointer"
                 whileHover={{ scale: 1.1 }}
               />
             </div>
@@ -232,20 +261,47 @@ const WelcomeAfterLoginPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h2 className="text-2xl font-semibold text-gray-900 mb-4">Account Information</h2>
-                  <div className="bg-white p-4 rounded-md shadow">
-                    <p><strong>Name:</strong> {user.name}</p>
-                    <p><strong>Email:</strong> {user.email}</p>
-                    <p><strong>Account Type:</strong> {user.accountType}</p>
-                    <p><strong>Last Login:</strong> {user.lastLogin}</p>
-                    <motion.button
-                      variants={buttonVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                      className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-md"
-                    >
-                      Edit Profile
-                    </motion.button>
-                  </div>
+                  <div className="bg-white p-4 rounded-md shadow flex justify-between items-center">
+  <div>
+    <p><strong>Name:</strong> {userDetails.fullName}</p>
+    <p><strong>Email:</strong> {userDetails.email}</p>
+    <p><strong>Role:</strong> {userDetails.role}</p>
+    <p><strong>Last Login:</strong> {user.lastLogin}</p>
+  </div>
+  <div className="text-right">
+  <div className="bg-white p-2 rounded-lg shadow-lg">
+  <QRCode  value={`https://ethershop.com/user/${userDetails.id}`}
+                size={120}
+                level="H"
+                includeMargin={true}
+                renderAs="svg"
+                imageSettings={{
+                  src: "https://i.postimg.cc/Wz01THQQ/pixelcut-export.jpg",
+                  x: null,
+                  y: null,
+                  height: 24,
+                  width: 24,
+                  excavate: true,
+                }}
+              />
+              
+    </div>
+    <p className="mt-2 text-sm text-gray-600">Scan to view profile</p>
+   
+   
+  </div>
+  
+</div>
+ <motion.button
+      variants={buttonVariants}
+      whileHover="hover"
+      whileTap="tap"
+      className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-md"
+    >
+      Edit Profile
+    </motion.button>
+
+                  
                 </div>
                 <div>
                   <h2 className="text-2xl font-semibold text-gray-900 mb-4">Account Actions</h2>
@@ -286,14 +342,16 @@ const WelcomeAfterLoginPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {featuredCategories.map((category) => (
                 <motion.button
-                  key={category.id}
+                  key={category._id}
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
                   className="bg-white p-4 rounded-md shadow flex flex-col items-center"
                 >
-                  <category.icon className="text-indigo-600 text-3xl mb-2" />
-                  <span className="font-medium text-gray-800">{category.name}</span>
+                 <Link to={`/categories/${category.name}`}>
+                 <img src={category.image} alt={category.name} className="w-12 h-12 object-contain mb-2" />
+                 <span className="font-medium text-gray-800">{category.name}</span>
+                 </Link>
                 </motion.button>
               ))}
             </div>
@@ -302,7 +360,7 @@ const WelcomeAfterLoginPage = () => {
           {/* Footer */}
           <div className="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">
             <div className="text-sm">
-              Need help? <a href="#" className="text-indigo-300 hover:underline">Contact Support</a>
+              Need help? <Link to='/contact' className='text-gray-300 hover:text-blue-500'>Contact Support</Link>
             </div>
 {/* Footer (continued) */}
             <motion.button
@@ -310,7 +368,7 @@ const WelcomeAfterLoginPage = () => {
               whileHover="hover"
               whileTap="tap"
               className="text-indigo-300 hover:text-indigo-100"
-              onClick={() => {/* Implement logout */}}
+              onClick={handleLogout}
             >
               <FiLogOut className="inline-block mr-2" /> Logout
             </motion.button>

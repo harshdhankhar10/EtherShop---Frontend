@@ -3,18 +3,91 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import Navbar from '../Navbar';
 import { Helmet } from 'react-helmet';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, removeFromCart } from '../../redux/slices/cartSlice';
+import { addToWishlist, removeFromWishlist } from '../../redux/slices/wishlistSlice';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiShoppingCart, FiHeart, FiEye } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
+const ProductCard = ({ product, isInCart, isInWishlist, onToggleCart, onToggleWishlist }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div
+      layout
+      className="bg-white p-4 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl relative"
+      whileHover={{ y: -5 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="relative overflow-hidden rounded-md">
+        <img 
+          src={product.imageUrl} 
+          alt={product.name} 
+          className="w-full h-64 object-cover transition-transform duration-300 transform hover:scale-110" 
+        />
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div 
+              className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <motion.button
+                className={`p-2 rounded-full ${isInCart ? 'bg-red-500' : 'bg-white'} ${isInCart ? 'text-white' : 'text-gray-800'} hover:bg-opacity-80`}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onToggleCart(product)}
+              >
+                <FiShoppingCart size={20} />
+              </motion.button>
+              <motion.button
+                className={`p-2 rounded-full ${isInWishlist ? 'bg-red-500' : 'bg-white'} ${isInWishlist ? 'text-white' : 'text-gray-800'} hover:bg-opacity-80`}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onToggleWishlist(product)}
+              >
+                <FiHeart size={20} />
+              </motion.button>
+              <motion.button
+                className="p-2 rounded-full bg-white text-gray-800 hover:bg-opacity-80"
+                whileTap={{ scale: 0.95 }}
+              >
+                <Link to={`/product/${product.slug}`}>
+                  <FiEye size={20} />
+                </Link>
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      <h2 className="text-lg font-semibold text-gray-800 mt-4 mb-2 truncate hover:text-[#3A55E8]">
+        <Link to={`/product/${product.slug}`}>{product.title}</Link>
+      </h2>
+      <div className="flex justify-between items-center">
+        <span className="text-xl font-bold text-indigo-600">₹{product.salesPrice}</span>
+      </div>
+    </motion.div>
+  );
+};
+
 const CategoryBasedProducts = () => {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState({});
   const [loading, setLoading] = useState(true);
   const params = useParams();
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items);
+  const wishlistItems = useSelector((state) => state.wishlist.items);
 
   useEffect(() => {
     const fetchCategoryAndProducts = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/product/category/${params.slug}`);
-        setProducts(response.data.products);
+        setProducts(response.data.data);
         setCategory(response.data.category);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -24,6 +97,28 @@ const CategoryBasedProducts = () => {
     };
     fetchCategoryAndProducts();
   }, [params.slug]);
+
+  const handleToggleCart = (product) => {
+    const isInCart = cartItems.some(item => item._id === product._id);
+    if (isInCart) {
+      dispatch(removeFromCart(product._id));
+      toast.error('Item removed from cart');
+    } else {
+      dispatch(addToCart(product));
+      toast.success('Item added to cart');
+    }
+  };
+
+  const handleToggleWishlist = (product) => {
+    const isInWishlist = wishlistItems.some(item => item._id === product._id);
+    if (isInWishlist) {
+      dispatch(removeFromWishlist(product._id));
+      toast.error('Item removed from wishlist');
+    } else {
+      dispatch(addToWishlist(product));
+      toast.success('Item added to wishlist');
+    }
+  };
 
   if (loading) {
     return (
@@ -35,15 +130,14 @@ const CategoryBasedProducts = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-    <Helmet>
-      <title>{category.name} Category - EtherShop</title>
-      <meta name="description" content={category.description} />
-    </Helmet>
+      <Helmet>
+        <title>{category.name} Category - EtherShop</title>
+        <meta name="description" content={category.description} />
+      </Helmet>
       <Navbar />
       <div className="w-full mx-auto py-12 px-4 sm:px-6 lg:px-4">
         <div className="bg-white shadow-2xl rounded-lg overflow-hidden mb-12">
           <div className="md:flex">
-          
             <div className="p-8">
               <div className="uppercase tracking-wide text-sm text-indigo-600 font-semibold">Category</div>
               <h1 className="mt-1 text-4xl font-extrabold text-gray-900 leading-tight">
@@ -58,13 +152,13 @@ const CategoryBasedProducts = () => {
                 </span>
               </div>
             </div>
-             <div className='w-full flex flex-col items-center justify-center px-6'>
-             {category.image && (
-              <div className="md:flex-shrink-0">
-                <img className="h-full w-full  object-cover md:w-64" src={category.image} alt={category.name} />
-              </div>
-            )}
-             </div>
+            <div className='w-full flex flex-col items-center justify-center px-6'>
+              {category.image && (
+                <div className="md:flex-shrink-0">
+                  <img className="h-full w-full object-cover md:w-64" src={category.image} alt={category.name} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -79,66 +173,14 @@ const CategoryBasedProducts = () => {
         ) : (
           <div className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
             {products.map((product) => (
-              <div key={product._id} className="group">
-                <div className="relative w-full aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.title}
-                    className="w-full h-full object-center object-cover group-hover:opacity-75 transition duration-300 ease-in-out"
-                  />
-                  {product.isFeatured && (
-                    <div className="absolute top-0 left-0 m-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        Featured
-                      </span>
-                    </div>
-                  )}
-                  {product.salesPrice < product.originalPrice && (
-                    <div className="absolute top-0 right-0 m-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        Sale
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="mt-4 flex justify-between">
-                  <div>
-                    <h3 className="text-sm text-gray-700">{product.title}</h3>
-                    <p className="mt-1 text-sm text-gray-500">{product.subTitle}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-medium text-gray-900">${product.salesPrice}</p>
-                    {product.salesPrice < product.originalPrice && (
-                      <p className="text-sm text-gray-500 line-through">${product.originalPrice}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="mt-2 flex items-center">
-                  {[0, 1, 2, 3, 4].map((rating) => (
-                    <svg
-                      key={rating}
-                      className={`h-5 w-5 flex-shrink-0 ${
-                        product.rating > rating ? 'text-yellow-400' : 'text-gray-200'
-                      }`}
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                  <span className="ml-2 text-sm text-gray-500">({product.reviews})</span>
-                </div>
-                <div className="mt-4 flex space-x-2">
-                  <button className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 ease-in-out">
-                    Add to Cart
-                  </button>
-                  <button className="p-2 text-gray-400 hover:text-red-500 transition duration-300 ease-in-out">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
+              <ProductCard 
+                key={product._id}
+                product={product}
+                isInCart={cartItems.some(item => item._id === product._id)}
+                isInWishlist={wishlistItems.some(item => item._id === product._id)}
+                onToggleCart={handleToggleCart}
+                onToggleWishlist={handleToggleWishlist}
+              />
             ))}
           </div>
         )}

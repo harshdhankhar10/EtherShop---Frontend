@@ -6,6 +6,8 @@ import {
   FiUser, FiHelpCircle, FiBell, FiSettings, FiLogOut,
   FiChevronDown, FiChevronRight, FiMenu
 } from 'react-icons/fi';
+import { AiOutlineWechatWork } from "react-icons/ai";
+
 import { HiOutlineTicket } from "react-icons/hi2";
 import { GrBlog } from "react-icons/gr";
 
@@ -160,9 +162,9 @@ const Sidebar = () => {
     {
       icon: FiHome,
       title: 'Dashboard',
-      link: '/dashboard',
+      link: '/dashboard/user/home',
       submenus: [
-        { title: 'Overview', link: '/dashboard/overview' },
+        { title: 'Overview', link: '/' },
         { title: 'Recent Orders', link: '/dashboard/recent-orders' },
         { title: 'Recommendations', link: '/dashboard/recommendations' }
       ]
@@ -172,9 +174,10 @@ const Sidebar = () => {
       title: 'Orders',
       link: '/orders',
       submenus: [
-        { title: 'My Orders', link: '/orders/my-orders' },
-        { title: 'Track Order', link: '/orders/track' },
-        { title: 'Order History', link: '/orders/history' }
+        { title: 'My Orders', link: '/dashboard/user/home/order/my-orders' },
+        // { title: 'Track Order', link: '/dashboard/user/home/order/track-order' },
+        { title: 'Order History', link: '/dashboard/user/home/order/order-history' },
+        { title: 'Archieve Orders', link: '/dashboard/user/home/order/archieve-orders' }
       ]
     },
     {
@@ -183,7 +186,7 @@ const Sidebar = () => {
       link: '/cart',
       submenus: [
         { title: 'View Cart', link: '/dashboard/user/home/cart' },
-        { title: 'Checkout', link: '/cart/checkout' }
+        { title: 'Checkout', link: '/checkout' }
       ]
     },
     {
@@ -200,9 +203,9 @@ const Sidebar = () => {
       link: '/products',
       submenus: [
         { title: 'Browse Products', link: '/dashboard/user/home/products/all' },
-        { title: 'Categories', link: '/dashboard/user/home/products/categories' },
-        { title: 'New Arrivals', link: '/products/new-arrivals' },
-        { title: 'Best Sellers', link: '/products/best-sellers' }
+        // { title: 'Categories', link: '/dashboard/user/home/products/categories' },
+        // { title: 'New Arrivals', link: '/products/new-arrivals' },
+        // { title: 'Best Sellers', link: '/products/best-sellers' }
       ]
     },
     {
@@ -211,9 +214,9 @@ const Sidebar = () => {
       link: '/account',
       submenus: [
         { title: 'Profile', link: '/dashboard/user/home/my-account/my-profile' },
-        { title: 'Addresses', link: '/account/addresses' },
-        { title: 'Payment Methods', link: '/account/payment-methods' },
-        { title: 'Change Password', link: '/account/change-password' }
+        // { title: 'Addresses', link: '/account/addresses' },
+        // { title: 'Payment Methods', link: '/account/payment-methods' },
+        // { title: 'Change Password', link: '/account/change-password' }
       ]
     },
     {
@@ -221,11 +224,10 @@ const Sidebar = () => {
       title: 'Add Funds',
       link: '/add-funds',
       submenus: [
-        { title: 'Deposit Funds', link: '/add-funds/deposit' },
-        { title: 'View Balance', link: '/add-funds/balance' },
-        { title: 'Manage Payment Methods', link: '/add-funds/payment-methods' },
-        { title: 'Transaction History', link: '/add-funds/transaction-history' },
-        { title: 'Account Funding Options', link: '/add-funds/funding-options' }
+        { title: 'Deposit Funds', link: '/dashboard/user/home/funds/add-funds/' },
+        { title: 'View Balance', link: '/dashboard/user/home/funds/balance-summary' },
+        { title: 'Transaction History', link: '/dashboard/user/home/funds/transaction-history' },
+        { title: 'Promo Codes', link: '/dashboard/user/home/funds/promo-codes' }
       ]
     },
     {
@@ -253,18 +255,18 @@ const Sidebar = () => {
       link: '/blog',
       submenus: [
         { title: 'Create ', link: '/dashboard/user/home/blog-management/create-blog' },
-        { title: 'Manage ', link: '/dashboard/user/home/blog-management/manage-posts' },
+        { title: 'Manage ', link: '/dashboard/user/home/blog-management/manage-blogs' },
         { title: 'Blog Categories', link: '/dashboard/user/home/blog-management/categories' },
         { title: 'Blog Tags', link: '/dashboard/user/home/blog-management/tags' }
       ]
     },
     {
-      icon: FiSettings,
-      title: 'Settings',
-      link: '/settings',
+      icon: AiOutlineWechatWork,
+      title: 'Chatbot',
+      link: '/chatbot',
       submenus: [
-        { title: 'Account Settings', link: '/settings/account' },
-        { title: 'Privacy Settings', link: '/settings/privacy' }
+        { title: 'Start Chat', link: '/dashboard/user/home/chatbot/start' },
+        { title: 'Chat History', link: '/dashboard/user/home/chatbot/history' }
       ]
     },
        

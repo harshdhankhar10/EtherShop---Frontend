@@ -15,14 +15,23 @@ const MainDashboardHome = () => {
   return (
     <>
     <Overview/>
+    <br/>
     <RecentOrders/>
+    <br/>
     <Recommendations/>
+    <br/>
     <QuickLinks/>
+    <br/>
     <AccountBalance/>
+    <br/>
     <OrderTracking/>
+    <br/>
     <PromotionalBanners/>
+    <br/>
     <Notifications/>
+    <br/>
     <SupportTickets/>
+    <br/>
     <RecentActivity/>
     </>
   )

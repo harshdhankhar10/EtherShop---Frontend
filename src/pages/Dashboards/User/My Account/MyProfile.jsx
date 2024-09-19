@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
-
+import swal from 'sweetalert2';
 const MyProfile = () => {
   const [ipAddress, setIpAddress] = useState('');
   const [activeTab, setActiveTab] = useState('personal');
@@ -45,12 +45,65 @@ const MyProfile = () => {
           Authorization: JSON.parse(localStorage.getItem('auth')).token
         }
       });
-
       setUserDetails((prevDetails) => ({ ...prevDetails, ...updatedData }));
       toast.success('Profile updated successfully!');
     } catch (error) {
       toast.error('Error updating profile');
       console.error('Error updating profile:', error);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      swal.fire({
+        title: 'Are you sure?',
+        text: 'Once deleted, you will not be able to recover your account!',  
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel!',
+        reverseButtons: true
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          await axios.delete(`${import.meta.env.VITE_REACT_APP_API}/api/v1/auth/delete/${user.id}`, {
+            headers: {
+              Authorization: JSON.parse(localStorage.getItem('auth')).token
+            }
+                    }).then(() => {
+            swal.fire('Deleted!', 'Your account has been deleted.', 'success').then(() => {
+              localStorage.removeItem('auth');
+              window.location.href = '/login';
+
+          
+          });
+          localStorage.removeItem('auth');
+          window.location.href = '/login';
+                });
+          localStorage.removeItem('auth');
+          window.location.href = '/login';
+          toast.success('Account deleted successfully!');
+        } else if (result.dismiss === swal.DismissReason.cancel) {
+          swal.fire('Cancelled', 'Your account is safe :)', 'error');
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error('Error deleting account');
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    try {
+      await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/auth/send-verification-email`, null, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('auth')).token
+        }
+      });
+      toast.success('Verification email sent. Please check your inbox.');
+    } catch (error) {
+      toast.error('Error sending verification email');
+      console.error('Error sending verification email:', error);
     }
   };
 
@@ -62,7 +115,7 @@ const MyProfile = () => {
       const day = String(date.getDate()).padStart(2, '0');
       
       return `${day}-${month}-${year}`;
-  }  
+    }  
     switch (activeTab) {
       case 'personal':
         return (
@@ -115,16 +168,26 @@ const MyProfile = () => {
         <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           {/* Profile Header */}
           <div className="bg-white shadow-xl rounded-lg overflow-hidden mb-8">
-            <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 sm:p-10 sm:pb-8 flex flex-col sm:flex-row items-center">
-              <img
-                src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRH87TKQrWcl19xly2VNs0CjBzy8eaKNM-ZpA&s'
-                alt={user.fullName}
-                className="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-4 sm:mb-0 sm:mr-6"
-              />
-              <div className="text-center sm:text-left">
-                <h1 className="text-3xl font-bold text-white">{user.fullName}</h1>
-                <p className="text-indigo-100 text-lg">Role: {user.role}</p>
+            <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 sm:p-10 sm:pb-8 flex flex-col sm:flex-row items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-center ">
+                <img
+                  src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRH87TKQrWcl19xly2VNs0CjBzy8eaKNM-ZpA&s'
+                  alt={user.fullName}
+                  className="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-4 sm:mb-0 sm:mr-6"
+                />
+                <div className="text-center sm:text-left">
+                  <h1 className="text-3xl font-bold text-white">{user.fullName}</h1>
+                  <p className="text-indigo-100 text-lg">Role: {user.role}</p>
+                </div>
+               
               </div>
+
+              {/* <button
+                onClick={handleVerifyEmail}
+                className="mt-4 sm:mt-0 px-4 py-2 bg-white text-indigo-600 rounded-md shadow hover:bg-indigo-50 transition-colors duration-200"
+              >
+                Verify Email
+              </button> */}
             </div>
           </div>
 
@@ -134,6 +197,16 @@ const MyProfile = () => {
               {activeTab === 'personal' ? 'Personal Information' : 'Update Profile'}
             </h2>
             {renderTabContent()}
+          </div>
+
+          {/* Delete Account Button */}
+          <div className="mt-8 text-right">
+            <button
+              onClick={handleDeleteAccount}
+              className="px-4 py-2 bg-red-600 text-white rounded-md shadow hover:bg-red-700 transition-colors duration-200"
+            >
+              Delete Account
+            </button>
           </div>
         </div>
       </div>

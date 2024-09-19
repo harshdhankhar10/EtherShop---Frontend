@@ -251,19 +251,20 @@ const fetchCategories = async () => {
   <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
     Category
   </label>
-  <select
-    id="category"
-    name="category"
-    value={product.category}
-    onChange={handleChange}
-    className="block w-full px-4 py-3 rounded-lg bg-gray-100 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 transition duration-200"
-  >
-    {categories.map((category) => (
-      <option key={category} value={category.name}>
-        {category.name}
-      </option>
-    ))}
-  </select>
+ <select
+                id="category"
+                name="category"
+                value={product.category}
+                onChange={handleChange}
+                className="block w-full px-4 py-3 rounded-lg bg-gray-100 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 transition duration-200"
+              >
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
 </div>
 
 

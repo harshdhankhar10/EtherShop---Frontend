@@ -54,7 +54,7 @@ const AdminTicketDetail = () => {
 
   const handleStatusUpdate = async (newStatus) => {
     try {
-      await axios.patch(`${import.meta.env.VITE_REACT_APP_API}/api/v1/support-tickets/change-status/${id}`, 
+     const response =  await axios.put(`${import.meta.env.VITE_REACT_APP_API}/api/v1/support-tickets/change-status/${id}`, 
         { status: newStatus },
         {
           headers: {
@@ -62,6 +62,9 @@ const AdminTicketDetail = () => {
           }
         }
       );
+      if(response.data.success){
+        alert('Status updated successfully');
+      }
       fetchTicket();
     } catch (error) {
       console.error('Error updating status:', error);

@@ -4,7 +4,6 @@ import Carousel from '../components/Carousel'
 import { useAuth } from '../context/AuthContext'
 import { Helmet } from 'react-helmet'
 
-
 // Products Realted Routes
 import FeaturedProduct from '../components/Products/FeaturedProduct'
 import CategorySection from '../components/Products/CategorySection'
@@ -13,9 +12,11 @@ import HomePromotion from '../components/HomePromotion'
 import TestimonialSection from '../components/TestimonialSection'
 import FlashSaleCountdown from '../components/SalesCountdown'
 import Footer from '../components/Footer'
+import UserBlog from '../components/UserBlog'
 
 
 const Homepage = () => {
+
   const [auth, setAuth] = useAuth()
   return (
     <>
@@ -29,6 +30,7 @@ const Homepage = () => {
         <FeaturedProduct/>
         <CategorySection/>
         <HomeAllProducts/>
+        <UserBlog/>
         <FlashSaleCountdown/>
         <TestimonialSection/>
         <HomePromotion/>

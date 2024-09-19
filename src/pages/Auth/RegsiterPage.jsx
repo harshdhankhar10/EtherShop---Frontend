@@ -18,10 +18,6 @@ const RegisterPage = () => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/auth/register`, {
         fullName, email, password, answer
-      },{
-        headers: {
-          Authorization: JSON.parse(localStorage.getItem('auth')).token
-        }
       });
       if(response.data.success){
         toast.success("User Registered Successfully")

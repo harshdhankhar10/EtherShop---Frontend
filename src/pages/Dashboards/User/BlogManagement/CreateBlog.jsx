@@ -1,248 +1,151 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import axios from 'axios';
-import {toast} from 'react-toastify';
-const BlogForm = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [authorName, setAuthorName] = useState('');
-  const [authorEmail, setAuthorEmail] = useState('');
-  const [status, setStatus] = useState('draft');
-  const [metaTitle, setMetaTitle] = useState('');
-  const [metaDescription, setMetaDescription] = useState('');
-  const [metaKeywords, setMetaKeywords] = useState('');
-  const [slug, setSlug] = useState('');
-  const [publishedAt, setPublishedAt] = useState('');
-  const [category, setCategory] = useState('');
-  const [isFeatured, setIsFeatured] = useState(false);
-  const [tags, setTags] = useState([]);
+import { toast } from 'react-toastify';
 
-  const handleTagAdd = (e) => {
-    if (e.key === 'Enter' && e.target.value) {
-      setTags([...tags, e.target.value]);
-      e.target.value = '';
-    }
-  };
+const CreateBlog = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: '', imageURL: '', subtitle: '', category: '', minutesRead: '',
+    content: '', authorName: '', tags: [], metaTitle: '', metaDescription: '', metaKeywords: '',
+    isFeatured :false
+  });
+  const [currentTag, setCurrentTag] = useState('');
 
-  const removeTag = (indexToRemove) => {
-    setTags(tags.filter((_, index) => index !== indexToRemove));
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-    const blogData = {
-      title,
-      content,
-      authorName,
-      authorEmail,
-      status,
-      metaTitle,
-      metaDescription,
-      metaKeywords,
-      slug,
-      publishedAt,
-      category,
-      isFeatured,
-      tags
-    };
-
     e.preventDefault();
-   const response =  await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/blog/create-blog`, blogData,
-    {
-      headers: {
-        Authorization: JSON.parse(localStorage.getItem('auth')).token
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/blog/create-blog`, formData, {
+        headers: { Authorization: JSON.parse(localStorage.getItem('auth')).token }
+      });
+      if (response.data.success) {
+        toast.success(response.data.message);
+        navigate('/dashboard/user/home/blog-management/manage-blogs'); 
       }
-    }
-   )
-   console.log(response)
-    if(response.success){
-      toast.success(response.message);   
-    }
-    else{
-      toast.error(response.message);
+    } catch (error) {
+      console.error(error);
+      toast.error('Something went wrong');
     }
   };
 
+  const addTag = () => {
+    if (currentTag.trim() !== '') {
+      setFormData({ ...formData, tags: [...formData.tags, currentTag.trim()] });
+      setCurrentTag('');
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setFormData({ ...formData, tags: formData.tags.filter(tag => tag !== tagToRemove) });
+  };
+
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-gradient-to-b from-white to-gray-100 rounded-xl shadow-2xl">
-      <h1 className="text-4xl font-extrabold mb-8 text-gray-800 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-        Create New Blog Post
-      </h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-            placeholder="Enter blog title"
-          />
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden">
+        <div className="px-8 py-10">
+          <h1 className="text-4xl font-extrabold text-center text-indigo-800 mb-10">Create Your Masterpiece</h1>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <InputField label="Title" name="title" value={formData.title} onChange={handleChange} />
+              <InputField label="Image URL" name="imageURL" value={formData.imageURL} onChange={handleChange} />
+              <InputField label="Subtitle" name="subtitle" value={formData.subtitle} onChange={handleChange} />
+              <InputField label="Category" name="category" value={formData.category} onChange={handleChange} />
+              <InputField label="Minutes Read" name="minutesRead" type="number" value={formData.minutesRead} onChange={handleChange} />
+              <InputField label="Author Name" name="authorName" value={formData.authorName} onChange={handleChange} />
+            </div>
 
-        <div className="space-y-2">
-          <label htmlFor="content" className="block text-sm font-medium text-gray-700">Content</label>
-          <ReactQuill
-  theme="snow"
-  value={content}
-  onChange={setContent}
-  className="h-64 mb-12 bg-white rounded-md shadow-sm"
-/>
+            <div className="mt-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Content</label>
+              <ReactQuill 
+                theme="snow" 
+                value={formData.content} 
+                onChange={(content) => setFormData({ ...formData, content })} 
+                className="h-64 mb-12 bg-gray-50 rounded-lg"
+              />
+            </div>
 
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label htmlFor="authorName" className="block text-sm font-medium text-gray-700">Author Name</label>
-            <input
-              type="text"
-              id="authorName"
-              value={authorName}
-              onChange={(e) => setAuthorName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-              placeholder="Enter author name"
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="authorEmail" className="block text-sm font-medium text-gray-700">Author Email</label>
-            <input
-              type="email"
-              id="authorEmail"
-              value={authorEmail}
-              onChange={(e) => setAuthorEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-              placeholder="Enter author email"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
-          <select
-            id="status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-          >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="metaTitle" className="block text-sm font-medium text-gray-700">Meta Title</label>
-          <input
-            type="text"
-            id="metaTitle"
-            value={metaTitle}
-            onChange={(e) => setMetaTitle(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-            placeholder="Enter meta title"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700">Meta Description</label>
-          <textarea
-            id="metaDescription"
-            value={metaDescription}
-            onChange={(e) => setMetaDescription(e.target.value)}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-            placeholder="Enter meta description"
-          ></textarea>
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="metaKeywords" className="block text-sm font-medium text-gray-700">Meta Keywords</label>
-          <input
-            type="text"
-            id="metaKeywords"
-            value={metaKeywords}
-            onChange={(e) => setMetaKeywords(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-            placeholder="Enter meta keywords"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="slug" className="block text-sm font-medium text-gray-700">Slug</label>
-          <input
-            type="text"
-            id="slug"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-            placeholder="Enter slug"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="publishedAt" className="block text-sm font-medium text-gray-700">Publish Date</label>
-          <input
-            type="datetime-local"
-            id="publishedAt"
-            value={publishedAt}
-            onChange={(e) => setPublishedAt(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="tags" className="block text-sm font-medium text-gray-700">Tags</label>
-          <div className="flex flex-wrap items-center gap-2 p-2 border border-gray-300 rounded-md bg-white">
-            {tags.map((tag, index) => (
-              <span key={index} className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center">
-                {tag}
-                <button type="button" onClick={() => removeTag(index)} className="ml-1 text-indigo-600 hover:text-indigo-800">
-                  &times;
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Tags</label>
+              <div className="flex items-center space-x-2 mb-2">
+                <input
+                  type="text"
+                  value={currentTag}
+                  onChange={(e) => setCurrentTag(e.target.value)}
+                  className="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Add a tag"
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-300"
+                >
+                  Add
                 </button>
-              </span>
-            ))}
-            <input
-              type="text"
-              onKeyPress={handleTagAdd}
-              placeholder="Add a tag and press Enter"
-              className="flex-grow outline-none bg-transparent p-1"
-            />
-          </div>
-        </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.tags.map((tag, index) => (
+                  <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="ml-2 inline-flex text-indigo-400 hover:text-indigo-600"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
 
-        <div className="space-y-2">
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-          <input
-  type="text"
-  id="category"
-  value={category}
-  onChange={(e) => setCategory(e.target.value)}
-  className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-  placeholder="Enter category"
-  required
-/>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <InputField label="Meta Title" name="metaTitle" value={formData.metaTitle} onChange={handleChange} />
+              <InputField label="Meta Keywords" name="metaKeywords" value={formData.metaKeywords} onChange={handleChange} />
+            </div>
+            <InputField label="Meta Description" name="metaDescription" value={formData.metaDescription} onChange={handleChange} />
+            {/* adding isFeatured with best ui design */}
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                name="isFeatured"
+                value={formData.isFeatured}
+                onChange={handleChange}
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <label  className="text-sm font-semibold text-gray-700"> Featured</label>
+            </div>
+            <div className="mt-10">
+              <button
+                type="submit"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300"
+              >
+                Publish Blog
+              </button>
+            </div>
+          </form>
         </div>
-
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="isFeatured"
-            checked={isFeatured}
-            onChange={(e) => setIsFeatured(e.target.checked)}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label htmlFor="isFeatured" className="ml-2 block text-sm text-gray-900">Featured Post</label>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out transform hover:-translate-y-1 hover:scale-102"
-        >
-          Create Blog Post
-        </button>
-      </form>
+      </div>
     </div>
   );
 };
 
-export default BlogForm;
+const InputField = ({ label, name, type = "text", value, onChange }) => (
+  <div>
+    <label className="block text-sm font-semibold text-gray-700 mb-1">{label}</label>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+    />
+  </div>
+);
+
+export default CreateBlog;

@@ -1,33 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Outlet } from 'react-router-dom';
-import Spinner from "../components/Spinner";
-import axios from 'axios'; 
+import { Outlet, useNavigate } from 'react-router-dom';
+import Spinner from '../components/Spinner';
+import axios from 'axios';
 
-const PrivateRoutes = () => {
-    const [ok, setOk] = useState(false);
-    const [auth, setAuth] = useAuth();
+export default function AdminPrivateRoute() {
+  const [loading, setLoading] = useState(true);
+  const [auth, , authLoading] = useAuth(); // Use authLoading from context
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const authCheck = async () => {
-            try {
-                const res = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/auth/user-auth`);
-                if (res.data.ok) {
-                    setOk(true);
-                    setAuth(res.data.user);
-                } else {
-                    setOk(false);
-                }
-            } catch (error) {
-                console.error('Error during authentication check:', error);
-                setOk(false);
-            }
-        };
+  useEffect(() => {
+    const authCheck = async () => {
+      if (!auth?.token && !authLoading) { // Wait for authLoading to be false
+        console.log("No token found, redirecting to login...");
+        navigate('/login');
+        return;
+      }
 
-        if(auth?.token) authCheck();
-    }, [auth?.token]); 
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/auth/user-auth`, {
+          headers: {
+            Authorization: `${auth.token}`,
+          },
+        });
+        setLoading(false); // Set loading to false after successful auth check
 
-    return ok ? <Outlet /> : <Spinner />;
-};
+      } catch (error) {
+        console.error('Error during admin authentication check:', error);
+        setLoading(false); // Stop loading
+        navigate('/login'); // Redirect to login if not authenticated
+      }
+    };
 
-export default PrivateRoutes;
+    if (!authLoading) {
+      authCheck();
+    }
+  }, [auth?.token, authLoading, navigate]);
+
+  return loading || authLoading ? <Spinner /> : <Outlet />;
+}

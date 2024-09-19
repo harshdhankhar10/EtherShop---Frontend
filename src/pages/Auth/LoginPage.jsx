@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 const LoginPage = () => {
   const location = useLocation();
@@ -15,34 +16,50 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      const res = await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/auth/login`, {
+      const { data } = await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/auth/login`, {
         email,
         password,
-          });
-      if (res && res.data.success) {
-        toast.success('Logged in successfully');
-        const userRole = res.data.user.role;
+      });
+  
+      if (data.success) {
+        toast.success(data.message);
+  
         setAuth({
           ...auth,
-          user: res.data.user,
-          token: res.data.token,
+          user: data.user,
+          token: data.token,
         });
-        localStorage.setItem('auth', JSON.stringify(res.data));
-        if (userRole === 'admin') {
-          navigate('/dashboard/admin');
-        } else {
-          navigate('/dashboard/user');
-        }
+  
+        localStorage.setItem("auth", JSON.stringify(data));
+        navigate(location?.state?.from ? location.state.from : `/dashboard/${data.user.role}`);
       } else {
-        toast.error(res.data.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Login failed',
+          text: data.message,
+        });
       }
     } catch (error) {
-      console.error(error);
-      toast.error('Failed to login');
+      console.error('Login error:', error);
+  
+      if (error.response && error.response.data && error.response.data.message) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Login failed',
+          text: error.response.data.message,
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Login failed',
+          text: 'An error occurred while logging in. Please try again.',
+        });
+      }
     }
   };
-
+    
   return (
     <>
       <Navbar />
@@ -105,6 +122,11 @@ const LoginPage = () => {
                       <span className="ml-3">Sign In</span>
                     </button>
                   </form>
+                  <div className="mt-5 text-center">
+                    <Link to="/login-email-otp" className="font-medium text-green-600 hover:text-green-500">
+                      Login with Email & OTP
+                    </Link>
+                  </div>
                   <p className="mt-6 text-xs text-gray-600 text-center">
                     I agree to the <a href="#" className="border-b border-gray-500 border-dotted">Terms of Service</a> and its <a href="#" className="border-b border-gray-500 border-dotted">Privacy Policy</a>
                   </p>

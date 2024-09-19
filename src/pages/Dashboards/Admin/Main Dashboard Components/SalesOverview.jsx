@@ -1,12 +1,69 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiDollarSign, FiShoppingCart, FiTrendingUp } from 'react-icons/fi';
+import { FiShoppingCart, FiUsers, FiPackage, FiGrid } from 'react-icons/fi';
+import { FaRupeeSign, FaChartLine } from "react-icons/fa6"; 
+import axios from 'axios';
 
 const SalesOverview = () => {
+  const [data, setData] = useState({
+    totalOrders: 0,
+    totalUsers: 0,
+    totalProducts: 0,
+    totalCategories: 0,
+    totalRevenue: [{ total: 0 }],
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_REACT_APP_API}/api/v1/orders/total-analytics/`
+        );
+        setData(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const stats = [
-    { title: 'Total Sales', value: '$124,563', icon: FiDollarSign, color: 'bg-blue-500' },
-    { title: 'Total Orders', value: '1,234', icon: FiShoppingCart, color: 'bg-green-500' },
-    { title: 'Revenue', value: '$98,765', icon: FiTrendingUp, color: 'bg-purple-500' },
+    {
+      title: 'Total Sales',
+      value: `₹${data.totalRevenue[0]?.total || 0}`,
+      icon: FaRupeeSign,
+      color: 'bg-blue-600', 
+    },
+    {
+      title: 'Total Orders',
+      value: data.totalOrders,
+      icon: FiShoppingCart,
+      color: 'bg-green-600', 
+    },
+    {
+      title: 'Total Revenue',
+      value: `₹${data.totalRevenue[0]?.total || 0}`,
+      icon: FaChartLine,
+      color: 'bg-purple-600', 
+    },
+    {
+      title: 'Total Users',
+      value: data.totalUsers,
+      icon: FiUsers,
+      color: 'bg-yellow-500', 
+    },
+    {
+      title: 'Total Products',
+      value: data.totalProducts,
+      icon: FiPackage,
+      color: 'bg-red-500', 
+    },
+    {
+      title: 'Total Categories',
+      value: data.totalCategories,
+      icon: FiGrid,
+      color: 'bg-indigo-500', 
+    }
   ];
 
   return (

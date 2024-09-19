@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, removeFromCart } from '../../redux/slices/cartSlice';
+import { addToWishlist, removeFromWishlist } from '../../redux/slices/wishlistSlice';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiShoppingCart, FiSearch, FiHeart, FiEye } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
-const ProductCard = ({ product, isInCart, onToggleCart }) => {
+const ProductCard = ({ product, isInCart, isInWishlist, onToggleCart, onToggleWishlist }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -17,10 +20,14 @@ const ProductCard = ({ product, isInCart, onToggleCart }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative overflow-hidden rounded-md">
-        <img src={product.imageUrl} alt={product.name} className="w-full h-64 object-cover transition-transform duration-300 transform hover:scale-110" />
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          className="w-full h-64 object-cover transition-transform duration-300 transform hover:scale-110"
+        />
         <AnimatePresence>
           {isHovered && (
-            <motion.div 
+            <motion.div
               className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -35,8 +42,11 @@ const ProductCard = ({ product, isInCart, onToggleCart }) => {
                 <FiShoppingCart size={20} />
               </motion.button>
               <motion.button
-                className="p-2 rounded-full bg-white text-gray-800 hover:bg-opacity-80"
+                className={`p-2 rounded-full ${isInWishlist ? 'bg-red-500' : 'bg-white'} text-${isInWishlist ? 'white' : 'gray-800'} hover:bg-opacity-80`}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  onToggleWishlist(product);
+                }}
               >
                 <FiHeart size={20} />
               </motion.button>
@@ -44,13 +54,17 @@ const ProductCard = ({ product, isInCart, onToggleCart }) => {
                 className="p-2 rounded-full bg-white text-gray-800 hover:bg-opacity-80"
                 whileTap={{ scale: 0.95 }}
               >
-                <FiEye size={20} />
+                <Link to={`/product/${product.slug}`}>
+                  <FiEye size={20} />
+                </Link>
               </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-      <h2 className="text-lg font-semibold text-gray-800 mt-4 mb-2 truncate">{product.title}</h2>
+      <h2 className="text-lg font-semibold text-gray-800 mt-4 mb-2 truncate hover:text-[#3A55E8]">
+        <Link to={`/product/${product.slug}`}>{product.title}</Link>
+      </h2>
       <div className="flex justify-between items-center">
         <span className="text-xl font-bold text-indigo-600">₹{product.salesPrice}</span>
       </div>
@@ -58,12 +72,14 @@ const ProductCard = ({ product, isInCart, onToggleCart }) => {
   );
 };
 
+// Main Products Page Component
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
+  const wishlistItems = useSelector((state) => state.wishlist.items);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -84,9 +100,23 @@ const ProductsPage = () => {
     const isInCart = cartItems.some(item => item._id === product._id);
     if (isInCart) {
       dispatch(removeFromCart(product._id));
+      toast.error('Item removed from cart');
     } else {
       dispatch(addToCart(product));
+      toast.success('Item added to cart');
     }
+  };
+
+  const handleToggleWishlist = (product) => {
+    const isInWishlist = wishlistItems.some(item => item._id === product._id);
+    if (isInWishlist) {
+      dispatch(removeFromWishlist(product._id));
+      toast.error('Item removed from wishlist');
+    } else {
+      dispatch(addToWishlist(product));
+      toast.success('Item added to wishlist');
+    }
+
   };
 
   const filteredProducts = products.filter(product =>
@@ -103,7 +133,7 @@ const ProductsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full px-4 mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Our Products</h1>
           <div className="relative">
@@ -118,7 +148,7 @@ const ProductsPage = () => {
           </div>
         </div>
         <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
@@ -128,7 +158,9 @@ const ProductsPage = () => {
               key={product._id}
               product={product}
               isInCart={cartItems.some(item => item._id === product._id)}
+              isInWishlist={wishlistItems.some(item => item._id === product._id)}
               onToggleCart={handleToggleCart}
+              onToggleWishlist={handleToggleWishlist}
             />
           ))}
         </motion.div>

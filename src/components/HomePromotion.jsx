@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const PromoBanner = ({ title, subtitle, buttonText, bgColor, textColor }) => (
   <div className={`${bgColor} ${textColor} p-8 rounded-lg shadow-lg flex flex-col justify-between h-full`}>
@@ -13,6 +15,22 @@ const PromoBanner = ({ title, subtitle, buttonText, bgColor, textColor }) => (
 );
 
 const HomePromotion = () => {
+  const [email, setEmail] = useState("");
+
+  const handleSubmitEmail = async () => {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/mail/newslettermail`,{email});
+      setEmail(response.data.data);
+      toast.success(response.data.message);
+      setEmail("");
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error("Failed to send email.");
+    }
+  };
+
+  
+
   return (
     <section className="bg-[#E2EDFC] py-20">
       <div className="container mx-auto px-4">
@@ -56,10 +74,12 @@ const HomePromotion = () => {
             <div className="flex">
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email" 
                 className="bg-gray-800 text-white px-4 py-2 rounded-l-full focus:outline-none"
               />
-              <button className="bg-white text-black font-semibold px-6 py-2 rounded-r-full hover:bg-opacity-90 transition-colors duration-300">
+              <button onClick={handleSubmitEmail} className="bg-white text-black font-semibold px-6 py-2 rounded-r-full hover:bg-opacity-90 transition-colors duration-300">
                 Subscribe
               </button>
             </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { FiEye, FiAlertCircle, FiClock, FiSearch, FiFilter, FiChevronDown } from 'react-icons/fi';
+import { FiEye, FiAlertCircle, FiClock, FiSearch, FiFilter, FiPlus, FiRefreshCw } from 'react-icons/fi';
 
 const UserTicketList = () => {
   const [tickets, setTickets] = useState([]);
@@ -10,24 +10,27 @@ const UserTicketList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPriority, setFilterPriority] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
+
+  const fetchTickets = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/support-tickets/get-tickets`, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('auth')).token
+        }
+      });
+      setTickets(response.data.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+      setError('Failed to load tickets. Please try again later.');
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/support-tickets/get-tickets`, {
-          headers: {
-            Authorization: JSON.parse(localStorage.getItem('auth')).token
-          }
-        });
-        setTickets(response.data.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching tickets:', error);
-        setError('Failed to load tickets. Please try again later.');
-        setLoading(false);
-      }
-    };
-
     fetchTickets();
   }, []);
 
@@ -49,11 +52,26 @@ const UserTicketList = () => {
     }
   };
 
-  const filteredTickets = tickets.filter(ticket => 
-    ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (filterPriority ? ticket.priority.toLowerCase() === filterPriority.toLowerCase() : true) &&
-    (filterStatus ? ticket.status.toLowerCase() === filterStatus.toLowerCase() : true)
-  );
+  const filteredAndSortedTickets = tickets
+    .filter(ticket => 
+      ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (filterPriority ? ticket.priority.toLowerCase() === filterPriority.toLowerCase() : true) &&
+      (filterStatus ? ticket.status.toLowerCase() === filterStatus.toLowerCase() : true)
+    )
+    .sort((a, b) => {
+      if (a[sortBy] < b[sortBy]) return sortOrder === 'asc' ? -1 : 1;
+      if (a[sortBy] > b[sortBy]) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+  };
 
   if (loading) {
     return (
@@ -74,7 +92,15 @@ const UserTicketList = () => {
 
   return (
     <div className="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
-      <h2 className="text-4xl font-extrabold text-gray-900 mb-8">My Support Tickets</h2>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-4xl font-extrabold text-gray-900">My Support Tickets</h2>
+        <Link 
+          to="/dashboard/user/home/customer-support/create-ticket"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <FiPlus className="mr-2" /> Create New Ticket
+        </Link>
+      </div>
       
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
         <div className="relative w-full sm:w-64">
@@ -110,11 +136,25 @@ const UserTicketList = () => {
             <option value="in progress">In Progress</option>
             <option value="closed">Closed</option>
           </select>
+
+          <button
+            onClick={() => handleSort('createdAt')}
+            className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            Sort by Date {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
+          </button>
+
+          <button
+            onClick={fetchTickets}
+            className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <FiRefreshCw className="inline-block mr-2" /> Refresh
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTickets.map((ticket) => (
+        {filteredAndSortedTickets.map((ticket) => (
           <div key={ticket._id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
@@ -141,7 +181,7 @@ const UserTicketList = () => {
         ))}
       </div>
 
-      {filteredTickets.length === 0 && (
+      {filteredAndSortedTickets.length === 0 && (
         <div className="text-center py-10">
           <p className="text-gray-500 text-xl">No tickets found matching your criteria.</p>
         </div>
