@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { FaUser, FaClock, FaCalendar, FaTags, FaFacebook, FaTwitter, FaLinkedin, FaBookmark } from 'react-icons/fa';
 import { Helmet } from 'react-helmet';
 import Footer from '../../../../components/Footer';
@@ -16,12 +16,21 @@ const ViewBlog = () => {
     const fetchBlog = async () => {
       const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/blog/blog/${id}`);
       setBlog(response.data.blog);
-      // Fetch related posts and categories here
+      // Fetch related posts and categories here.relatedBlogs);
       // setRelatedPosts(response.data.relatedPosts);
       // setCategories(response.data.categories);
     };
     fetchBlog();
   }, [id]);
+
+  useEffect(() => {
+    const fetchRelatedPosts = async () => {
+      const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/blog/related-blogs/${blog._id}`);
+      setRelatedPosts(response.data.relatedBlogs);
+    };
+    if (blog) fetchRelatedPosts();
+  }, [blog]);
+
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -31,16 +40,6 @@ const ViewBlog = () => {
     fetchCategories();
   }, []);
 
-
-  // useEffect(() => {
-  //   const fetchRelatedPosts = async () => {
-  //     const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API}/api/v1/blog/related-blogs/${blog._id}`);
-  //     setRelatedPosts(response.data.relatedBlogs);
-  //   };
-  //   if (blog) fetchRelatedPosts();
-  // }, [blog]);
-
-  console.log( relatedPosts);
 
 
   if (!blog) return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -160,9 +159,11 @@ const ViewBlog = () => {
               <ul className="space-y-4">
                 {relatedPosts.map((post, index) => (
                   <li key={index} className="flex items-center space-x-4">
-                    <img src={post.imageURL} alt={post.title} className="w-16 h-16 object-cover rounded" />
+                    <img src={post.imageURL} alt={post.title} className="w-20 h-20 object-cover rounded" />
                     <div>
-                      <h4 className="font-medium text-gray-800">{post.title}</h4>
+                     <Link to={`/blog/${post._id}`} className="text-lg font-semibold text-gray-800 hover:text-blue-600 transition-colors">
+                      {post.title}
+                    </Link>
                       <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
                     </div>
                   </li>

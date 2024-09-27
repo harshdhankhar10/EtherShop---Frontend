@@ -39,9 +39,11 @@ const CheckoutPage = () => {
   };
 
   const handlePayment = async () => {
+    // Validate the fields before proceeding
     if (!validateFields()) return;
-
+  
     try {
+      // Create the order on the server
       const { data } = await axios.post(
         `${import.meta.env.VITE_REACT_APP_API}/api/v1/orders/create-order`,
         {
@@ -62,26 +64,29 @@ const CheckoutPage = () => {
           amount: Math.round(total)
         }
       );
-
+  
+      // Razorpay payment options
       const options = {
         key: `${import.meta.env.VITE_REACT_RAZORPAY_KEY}`,
-        amount: total * 100,
+        amount: total * 100, // Amount in paise (multiply by 100)
         currency: "INR",
         name: "EtherShop",
         description: "Thank you for shopping with us",
         image: "https://i.postimg.cc/Wz01THQQ/pixelcut-export.jpg",
-        order_id: data.orderId,
+        order_id: data.orderId, // Order ID from backend response
+  
+        // Handler function triggered on successful payment
         handler: async function (response) {
           const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
-
+  
           const paymentDetails = {
             razorpayPaymentId: razorpay_payment_id,
             razorpayOrderId: razorpay_order_id,
             razorpaySignature: razorpay_signature,
           };
-
-          // Verify payment on the backend
+  
           try {
+            // Call verify-payment API to confirm payment
             const result = await axios.post(`${import.meta.env.VITE_REACT_APP_API}/api/v1/orders/verify-payment`, paymentDetails);
             if (result.data.success) {
               Swal.fire({
@@ -91,10 +96,10 @@ const CheckoutPage = () => {
                 showConfirmButton: false,
                 timer: 3000
               });
+              // Navigate to order confirmation page with order details
               navigate('/order-confirmation', { state: { order: result.data.order } });
-
-
             } else {
+              // Payment verification failed
               Swal.fire({
                 icon: 'error',
                 title: 'Payment Failed',
@@ -104,6 +109,7 @@ const CheckoutPage = () => {
               });
             }
           } catch (error) {
+            // Error during payment verification
             console.log(error);
             Swal.fire({
               icon: 'error',
@@ -114,20 +120,37 @@ const CheckoutPage = () => {
             });
           }
         },
+  
+        // Prefill user details
         prefill: {
-          name: `${auth?.fullName}`,
+          name: auth?.fullName,
           email: auth?.email,
           contact: auth?.phoneNumber,
         },
         theme: {
           color: "#528FF0",
         },
+  
+        // Modal dismiss function triggered if payment is cancelled
+        modal: {
+          ondismiss: function () {
+            // Handle payment cancellation
+            Swal.fire({
+              icon: 'warning',
+              title: 'Payment Cancelled',
+              text: 'You have cancelled the payment. If this was a mistake, please try again.',
+              showConfirmButton: true,
+            });
+          }
+        }
       };
-
+  
+      // Open Razorpay payment window
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
-
+  
     } catch (error) {
+      // Error during order creation
       console.log(error);
       Swal.fire({
         icon: 'error',
@@ -137,9 +160,8 @@ const CheckoutPage = () => {
         timer: 3000
       });
     }
-  }
-
-  return (
+  };
+    return (
     <>
       <Helmet>
         <title>Checkout - EtherShop</title>
@@ -254,12 +276,22 @@ const CheckoutPage = () => {
                   </li>
                 </ul>
                 <div className="mt-6">
-                  <button
+                {
+                  auth ? (  <button
                     onClick={handlePayment}
                     className="w-full py-3 px-4 bg-indigo-600 text-white font-semibold text-lg rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     Proceed to Payment
+                  </button>) : (
+                    <button
+                    onClick={() => navigate('/login')}
+                    className="w-full py-3 px-4 bg-indigo-600 text-white font-semibold text-lg rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Login to Proceed
                   </button>
+                  )
+
+                }
                 </div>
               </section>
             </div>
