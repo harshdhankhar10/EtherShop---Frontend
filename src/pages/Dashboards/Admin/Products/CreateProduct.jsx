@@ -2,7 +2,8 @@ import React, { useState,useEffect } from 'react';
 import { FiUpload, FiTag, FiBox, FiPercent, FiDollarSign, FiImage } from 'react-icons/fi';
 import { FaRupeeSign } from "react-icons/fa";
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import "quill/dist/quill.snow.css";
+
 import axios from "axios";
 import { toast } from "react-toastify";
 

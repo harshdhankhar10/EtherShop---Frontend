@@ -1,6 +1,5 @@
 {
   "name": "frontend",
-  "proxy": "http://localhost:3000",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,9 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "start": "concurrently \"npm run dev\" \"npm run server\"",
-    "server": "cd ../backend && npm start"
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^18.0.0",
@@ -26,6 +23,7 @@
     "@mui/material": "^5.16.0",
     "@reduxjs/toolkit": "^2.2.6",
     "@tinymce/tinymce-react": "^5.1.1",
+    "@types/quill": "^2.0.14",
     "axios": "^1.7.2",
     "braintree-web-drop-in-react": "^1.2.1",
     "colorific-magic": "^1.0.2",
@@ -39,6 +37,7 @@
     "pdfjs": "^2.5.3",
     "pdfjs-dist": "^4.6.82",
     "qrcode.react": "^3.1.0",
+    "quill": "^2.0.3",
     "react": "^17.0.0 || ^18.0.0",
     "react-chartjs-2": "^5.2.0",
     "react-country-region-selector": "^3.6.1",
@@ -60,9 +59,10 @@
     "recharts": "^2.12.7",
     "regenerator-runtime": "^0.14.1",
     "slick-carousel": "^1.8.1",
-    "sweetalert2": "^11.12.2",
+    "sweetalert2": "^11.6.13",
     "tailwind-scrollbar": "^3.1.0",
     "typewriter-effect": "^2.21.0",
+    "vercel": "^41.0.0",
     "vite-plugin-env-compatible": "^2.0.1"
   },
   "devDependencies": {

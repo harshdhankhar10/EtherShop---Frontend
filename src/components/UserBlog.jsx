@@ -11,7 +11,7 @@ const BlogSection = () => {
     const storedAuth = JSON.parse(localStorage.getItem('auth'));
     setAuth(storedAuth?.user || null);
   }, []);
-
+  
   useEffect(() => {
     const fetchBlogs = async () => {
       try {

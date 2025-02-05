@@ -160,7 +160,7 @@ const ViewBlog = () => {
                 {relatedPosts.map((post, index) => (
                   <li key={index} className="flex items-center space-x-4">
                     <img src={post.imageURL} alt={post.title} className="w-20 h-20 object-cover rounded" />
-                    <div>
+                    <div> 
                      <Link to={`/blog/${post._id}`} className="text-lg font-semibold text-gray-800 hover:text-blue-600 transition-colors">
                       {post.title}
                     </Link>
