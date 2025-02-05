@@ -38,6 +38,7 @@ const MyProfile = () => {
     fetchIpAddress();
   }, []);
 
+
   const handleUpdateProfile = async (updatedData) => {
     try {
       const response = await axios.put(`${import.meta.env.VITE_REACT_APP_API}/api/v1/profile/update-profile`, updatedData, {
@@ -125,7 +126,7 @@ const MyProfile = () => {
             <ProfileField label="Date of Birth" value={formatDOB(userDetails.dateOfBirth)} />
             <ProfileField label="Gender" value={userDetails.gender} />
             <ProfileField label="Member Since" value={formatDOB(userDetails.createdAt)} />
-            <ProfileField label="IP Address" value={ipAddress || 'Loading...'} />
+            <ProfileField label="IP Address" value={ipAddress || 'N/A'} />
             <div className="md:col-span-2">
               <h2 className="text-xl font-semibold mb-2">Address</h2>
               <p className="text-gray-700">{userDetails.address}</p>
@@ -187,7 +188,7 @@ const MyProfile = () => {
                 className="mt-4 sm:mt-0 px-4 py-2 bg-white text-indigo-600 rounded-md shadow hover:bg-indigo-50 transition-colors duration-200"
               >
                 Verify Email
-              </button> */}
+              </button>  */}
             </div>
           </div>
 
